@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 )
@@ -18,24 +20,19 @@ type StoryArc struct {
 	Options []Option `json:"options"`
 }
 
-// temporary code to test json parsing and http serving
-// TODO replace with html template
 func (a *StoryArc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	arc, err := json.Marshal(a)
+	err := tmpl.Execute(w, a)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(arc)
 	}
 }
 
 type Story map[string]StoryArc
 
-func parseJSON(raw []byte) Story {
+func parseJSON(rawJSON []byte) Story {
 	jsonMap := Story{}
-	json.Unmarshal(raw, &jsonMap)
+	json.Unmarshal(rawJSON, &jsonMap)
 	return jsonMap
 }
 
@@ -51,8 +48,15 @@ func registerHandle(story Story, mux *http.ServeMux) {
 	}
 }
 
+var tmpl *template.Template
+
 func main() {
-	rawJSON, err := os.ReadFile("gopher.json")
+	templateFile := flag.String("templateFile", "layout.html", "the html template file to use")
+	jsonFile := flag.String("jsonFile", "gopher.json", "the json file of the story to use")
+	flag.Parse()
+
+	tmpl = template.Must(template.ParseFiles(*templateFile))
+	rawJSON, err := os.ReadFile(*jsonFile)
 	if err != nil {
 		panic(err)
 	}
