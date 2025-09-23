@@ -1,11 +1,13 @@
-<html>
-    <h1>{{.Title}}</h1>
-    {{range .Story}}
-        <p>{{.}}</p>
-    {{end}}
-    {{range .Options}}
-        <p>
-            <a href={{.Arc}}>{{.Text}}</a>
-        </p>
-    {{end}}
+<html style="display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 0;">
+    <div style="max-width: 600px; width: 90%;">
+        <h1 style="text-align: center; font-family: Arial, sans-serif; font-weight: bold;">{{.Title}}</h1>
+        {{range .Story}}
+            <p style="text-align: left; font-family: Arial, sans-serif; font-weight: normal;">{{.}}</p>
+        {{end}}
+        {{range .Options}}
+            <p style="text-align: left; font-family: Arial, sans-serif; font-weight: normal;">
+                <a href={{.Arc}}>{{.Text}}</a>
+            </p>
+        {{end}}
+    </div>
 </html>
