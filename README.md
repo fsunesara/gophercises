@@ -3,11 +3,11 @@
 Progress:
 
 1. [x] Quiz game
-    - [] String trimming
-    - [] Shuffle questions
+    - [ ] String trimming
+    - [ ] Shuffle questions
 2. [x] URL shortener
     - [x] YAML file flag
-    - [] JSONHandler
-    - [] Database handler
+    - [ ] JSONHandler
+    - [ ] Database handler
 3. [x] Choose your own adventure
-    - [] CLI version
+    - [ ] CLI version
