@@ -1,0 +1,58 @@
+package parser
+
+import (
+	"os"
+	"strings"
+
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
+)
+
+type Link struct {
+	Href string
+	Text string
+}
+
+type Links []Link
+
+func processAnchor(node *html.Node) Link {
+	link := Link{}
+
+	for _, a := range node.Attr {
+		if a.Key == "href" {
+			link.Href = a.Val
+			break
+		}
+	}
+
+	for d := range node.Descendants() {
+		if d.Type == html.TextNode {
+			text := strings.TrimSpace(d.Data)
+			if link.Text != "" && text != "" {
+				link.Text += " "
+			}
+			link.Text += text
+		}
+	}
+	return link
+}
+
+func ParseHTML(fileName string) Links {
+	rawHTML, err := os.ReadFile(fileName)
+	if err != nil {
+		panic(err)
+	}
+	doc, err := html.Parse(strings.NewReader(string(rawHTML)))
+	if err != nil {
+		panic(err)
+	}
+
+	links := make(Links, 0)
+	for node := range doc.Descendants() {
+		if node.Type == html.ElementNode && node.DataAtom == atom.A {
+			links = append(links, processAnchor(node))
+
+		}
+	}
+	return links
+}
