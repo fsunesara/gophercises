@@ -5,7 +5,7 @@ import (
 )
 
 func TestParseHTMLEx1(t *testing.T) {
-	testParseHTMLGeneric(t, "ex4.html", 1, []string{"/other-page"}, []string{"A link to another page"})
+	testParseHTMLGeneric(t, "ex1.html", 1, []string{"/other-page"}, []string{"A link to another page"})
 }
 
 func TestParseHTMLEx2(t *testing.T) {
@@ -19,7 +19,7 @@ func TestParseHTMLEx3(t *testing.T) {
 	expectedLen := 3
 	expectedHrefs := []string{"#", "/lost", "https://twitter.com/marcusolsson"}
 	expectedTexts := []string{"Login", "Lost? Need help?", "@marcusolsson"}
-	testParseHTMLGeneric(t, "ex4.html", expectedLen, expectedHrefs, expectedTexts)
+	testParseHTMLGeneric(t, "ex3.html", expectedLen, expectedHrefs, expectedTexts)
 }
 
 func TestParseHTMLEx4(t *testing.T) {
