@@ -5,26 +5,35 @@ import (
 )
 
 func TestParseHTMLEx1(t *testing.T) {
-	got := ParseHTML("ex1.html")
-	if len(got) != 1 {
-		t.Errorf("len(abs) = %d, expected %d", len(got), 1)
-	}
-
-	if got[0].Href != "/other-page" {
-		t.Errorf("href = %s, expected %s", got[0].Href, "\"/other-page\"")
-	}
-
-	if got[0].Text != "A link to another page" {
-		t.Errorf("text = %s, expected %s", got[0].Href, "\"A link to another page\"")
-	}
+	testParseHTMLGeneric(t, "ex4.html", 1, []string{"/other-page"}, []string{"A link to another page"})
 }
 
 func TestParseHTMLEx2(t *testing.T) {
+	expectedLen := 2
 	expectedHrefs := []string{"https://www.twitter.com/joncalhoun", "https://github.com/gophercises"}
 	expectedTexts := []string{"Check me out on twitter", "Gophercises is on Github !"}
-	got := ParseHTML("ex2.html")
-	if len(got) != 2 {
-		t.Errorf("len(abs) = %d, expected %d", len(got), 2)
+	testParseHTMLGeneric(t, "ex2.html", expectedLen, expectedHrefs, expectedTexts)
+}
+
+func TestParseHTMLEx3(t *testing.T) {
+	expectedLen := 3
+	expectedHrefs := []string{"#", "/lost", "https://twitter.com/marcusolsson"}
+	expectedTexts := []string{"Login", "Lost? Need help?", "@marcusolsson"}
+	testParseHTMLGeneric(t, "ex4.html", expectedLen, expectedHrefs, expectedTexts)
+}
+
+func TestParseHTMLEx4(t *testing.T) {
+	testParseHTMLGeneric(t, "ex4.html", 1, []string{"/dog-cat"}, []string{"dog cat"})
+}
+
+func testParseHTMLGeneric(t *testing.T, fileName string, expectedLen int, expectedHrefs []string, expectedTexts []string) {
+	got, err := ParseHTML(fileName)
+	if err != nil {
+		t.Errorf("error occurred: %s", err.Error())
+	}
+
+	if len(got) != expectedLen {
+		t.Errorf("len(abs) = %d, expected %d", len(got), expectedLen)
 	}
 
 	for i := range expectedHrefs {

@@ -13,8 +13,6 @@ type Link struct {
 	Text string
 }
 
-type Links []Link
-
 func processAnchor(node *html.Node) Link {
 	link := Link{}
 
@@ -37,22 +35,21 @@ func processAnchor(node *html.Node) Link {
 	return link
 }
 
-func ParseHTML(fileName string) Links {
+func ParseHTML(fileName string) ([]Link, error) {
 	rawHTML, err := os.ReadFile(fileName)
 	if err != nil {
-		panic(err)
+		return []Link{}, err
 	}
 	doc, err := html.Parse(strings.NewReader(string(rawHTML)))
 	if err != nil {
-		panic(err)
+		return []Link{}, err
 	}
 
-	links := make(Links, 0)
+	links := make([]Link, 0)
 	for node := range doc.Descendants() {
 		if node.Type == html.ElementNode && node.DataAtom == atom.A {
 			links = append(links, processAnchor(node))
-
 		}
 	}
-	return links
+	return links, nil
 }
