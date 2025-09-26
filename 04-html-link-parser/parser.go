@@ -35,11 +35,15 @@ func processAnchor(node *html.Node) Link {
 	return link
 }
 
-func ParseHTML(fileName string) ([]Link, error) {
+func ParseFromFile(fileName string) ([]Link, error) {
 	rawHTML, err := os.ReadFile(fileName)
 	if err != nil {
 		return []Link{}, err
 	}
+	return ParseHTML(rawHTML)
+}
+
+func ParseHTML(rawHTML []byte) ([]Link, error) {
 	doc, err := html.Parse(strings.NewReader(string(rawHTML)))
 	if err != nil {
 		return []Link{}, err

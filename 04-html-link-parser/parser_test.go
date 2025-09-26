@@ -27,7 +27,7 @@ func TestParseHTMLEx4(t *testing.T) {
 }
 
 func testParseHTMLGeneric(t *testing.T, fileName string, expectedLen int, expectedHrefs []string, expectedTexts []string) {
-	got, err := ParseHTML(fileName)
+	got, err := ParseFromFile(fileName)
 	if err != nil {
 		t.Errorf("error occurred: %s", err.Error())
 	}
