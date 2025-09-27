@@ -1,8 +1,6 @@
-package main
+package solution
 
-import "fmt"
-
-func caesarCipher(s string, k int32) string {
+func CaesarCipher(s string, k int32) string {
 	k = k % 26
 	res := make([]byte, len(s))
 	var end int32 = 0
@@ -25,7 +23,7 @@ func caesarCipher(s string, k int32) string {
 	return string(res)
 }
 
-func camelcase(s string) int32 {
+func CamelCase(s string) int32 {
 	var res int32 = 1
 	for j := 1; j < len(s); j++ {
 		if rune(s[j]) >= rune('A') && rune(s[j]) <= rune('Z') {
@@ -33,9 +31,4 @@ func camelcase(s string) int32 {
 		}
 	}
 	return res
-}
-
-func main() {
-	fmt.Println(caesarCipher("Always-Look-on-the-Bright-Side-of-Life", 5))
-	fmt.Println(camelcase("saveChangesInTheEditor"))
 }
