@@ -13,7 +13,7 @@ var listCmd = &cobra.Command{
 }
 
 func list(cmd *cobra.Command, args []string) {
-	tasks := db.ListTasks()
+	tasks := db.ListTasks(false)
 	if len(tasks) == 0 {
 		fmt.Println("You have no tasks.")
 		return

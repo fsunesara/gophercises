@@ -8,13 +8,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var doCmd = &cobra.Command{
-	Use:  "do [task]",
-	Run:  do,
-	Args: cobra.ExactArgs(1),
+var rmCmd = &cobra.Command{
+	Use:   "rm [task]",
+	Short: "Remove a task.",
+	Run:   rm,
+	Args:  cobra.MinimumNArgs(1),
 }
 
-func do(cmd *cobra.Command, args []string) {
+func rm(cmd *cobra.Command, args []string) {
 	taskId, err := strconv.Atoi(args[0])
 	if err != nil {
 		fmt.Printf("Error: %s is not a valid integer", args[0])
@@ -25,10 +26,10 @@ func do(cmd *cobra.Command, args []string) {
 		fmt.Printf("Error: task %d not found", taskId)
 		return
 	}
-	db.CompleteTask(tasks[taskId-1].Id)
-	fmt.Printf("You have completed the %q task.", tasks[taskId-1].Text)
+	db.RemoveTask(tasks[taskId-1].Id)
+	fmt.Printf("You have deleted the %q task.", tasks[taskId-1].Text)
 }
 
 func init() {
-	rootCmd.AddCommand(doCmd)
+	rootCmd.AddCommand(rmCmd)
 }

@@ -81,7 +81,7 @@ func CompleteTask(taskId uint64) {
 	})
 }
 
-func ListTasks() []Task {
+func ListTasks(completed bool) []Task {
 	tasks := make([]Task, 0)
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("Tasks"))
@@ -96,13 +96,22 @@ func ListTasks() []Task {
 			if err != nil {
 				return err
 			}
-			if task.CompletionTime == nil {
+			if completed && task.CompletionTime != nil && task.CompletionTime.Compare(time.Now().AddDate(0, 0, -1)) <= 0 {
+				tasks = append(tasks, task)
+			} else if !completed && task.CompletionTime == nil {
 				tasks = append(tasks, task)
 			}
 		}
 		return nil
 	})
 	return tasks
+}
+
+func RemoveTask(taskId uint64) {
+	db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Tasks"))
+		return b.Delete(uint64ToBytes(taskId))
+	})
 }
 
 func CloseDB() {
