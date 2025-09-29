@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
@@ -25,7 +26,8 @@ func (t *Task) ToJSONString() ([]byte, error) {
 }
 
 func InitDB() {
-	db, err := bolt.Open("tasks.db", 0600, nil)
+	var err error
+	db, err = bolt.Open("tasks.db", 0600, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -57,10 +59,10 @@ func AddTask(t Task) {
 	})
 }
 
-func CompleteTask(taskId []byte) {
+func CompleteTask(taskId uint64) {
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("Tasks"))
-		taskStr := b.Get(taskId)
+		taskStr := b.Get(uint64ToBytes(taskId))
 		var task Task
 		err := json.Unmarshal(taskStr, &task)
 		if err != nil {
@@ -75,8 +77,32 @@ func CompleteTask(taskId []byte) {
 			return err
 		}
 
-		return b.Put(taskId, taskStr)
+		return b.Put(uint64ToBytes(taskId), taskStr)
 	})
+}
+
+func ListTasks() []Task {
+	tasks := make([]Task, 0)
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Tasks"))
+		if b == nil {
+			return fmt.Errorf("no tasks found")
+		}
+		c := b.Cursor()
+
+		for id, txt := c.First(); id != nil; id, txt = c.Next() {
+			var task Task
+			err := json.Unmarshal(txt, &task)
+			if err != nil {
+				return err
+			}
+			if task.CompletionTime == nil {
+				tasks = append(tasks, task)
+			}
+		}
+		return nil
+	})
+	return tasks
 }
 
 func CloseDB() {

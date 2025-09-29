@@ -10,6 +10,6 @@ import (
 
 func main() {
 	db.InitDB()
+	defer db.CloseDB()
 	cmd.Execute()
-	db.CloseDB()
 }
