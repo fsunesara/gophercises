@@ -3,6 +3,8 @@
 package deck
 
 import (
+	"math/rand/v2"
+	"slices"
 	"strconv"
 )
 
@@ -10,18 +12,20 @@ type Suit int
 
 const (
 	Spades Suit = iota
-	Hearts
 	Diamonds
+	Hearts
 	Clubs
 )
 
 type Card struct {
-	Suit Suit
+	Suit *Suit
 	Rank int
 }
 
 func (c *Card) RankCharacter() string {
 	switch c.Rank {
+	case 0:
+		return "j"
 	case 1:
 		return "A"
 	case 11:
@@ -36,44 +40,107 @@ func (c *Card) RankCharacter() string {
 }
 
 type deckConfig struct {
-	// comparisonFunction func(a, b Card) bool
-	// shuffle            bool
-	// numJokers          int
-	// filterRanks        []int
-	// filterSuits        []Suit
-	numDecks int
+	comparisonFunction func(a, b Card) int
+	shuffle            bool
+	numJokers          int
+	filterRanks        []int
+	filterSuits        []Suit
+	numDecks           int
 }
 
-func constructDeck() []Card {
+func constructDeck(dc *deckConfig) []Card {
 	d := []Card{}
 	for _, suit := range []Suit{Spades, Hearts, Diamonds, Clubs} {
+		if len(dc.filterSuits) > 0 && slices.Contains(dc.filterSuits, suit) {
+			continue
+		}
 		for rank := 1; rank <= 13; rank++ {
-			d = append(d, Card{Suit: suit, Rank: rank})
+			if len(dc.filterRanks) > 0 && slices.Contains(dc.filterRanks, rank) {
+				continue
+			}
+			d = append(d, Card{Suit: &suit, Rank: rank})
 		}
 	}
 	return d
 }
 
-func New(options ...func(*deckConfig)) *[]Card {
+func defaultComparisonFunction(a, b Card) int {
+	if a.Rank == b.Rank && a.Suit != nil && b.Suit != nil {
+		return int(*a.Suit) - int(*b.Suit)
+	}
+	return a.Rank - b.Rank
+}
+
+var comparisonFunction = defaultComparisonFunction
+
+func New(options ...func(*deckConfig)) []Card {
 	dc := &deckConfig{}
 	for _, option := range options {
 		option(dc)
 	}
 
 	d := []Card{}
-	if dc.numDecks == 0 {
+	if dc.numDecks <= 0 {
 		dc.numDecks = 1
 	}
 	for i := 0; i < dc.numDecks; i++ {
-		d = append(d, constructDeck()...)
+		d = append(d, constructDeck(dc)...)
 	}
 
-	return &d
+	if dc.numJokers > 0 {
+		for i := 0; i < dc.numJokers; i++ {
+			d = append(d, Card{Suit: nil, Rank: 0})
+		}
+	}
+
+	if dc.comparisonFunction != nil {
+		comparisonFunction = dc.comparisonFunction
+	}
+
+	if dc.shuffle {
+		rand.Shuffle(len(d), func(i, j int) {
+			d[i], d[j] = d[j], d[i]
+		})
+	}
+	return d
 }
 
-func WithComparisonFunction() {
-
+func Sort(d []Card) {
+	slices.SortFunc(d, comparisonFunction)
 }
 
-func WithShuffle(shuffle bool) {
+func WithComparisonFunction(comparisonFunction func(a, b Card) int) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.comparisonFunction = comparisonFunction
+	}
+}
+
+func WithShuffle(shuffle bool) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.shuffle = shuffle
+	}
+}
+
+func WithNumJokers(numJokers int) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.numJokers = numJokers
+	}
+}
+
+func WithFilterRanks(filterRanks []int) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.filterRanks = filterRanks
+	}
+}
+
+func WithFilterSuits(filterSuits []Suit) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.filterSuits = filterSuits
+	}
+}
+
+func WithNumDecks(numDecks int) func(*deckConfig) {
+	return func(dc *deckConfig) {
+		dc.numDecks = numDecks
+	}
 }
