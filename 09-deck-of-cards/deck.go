@@ -1,5 +1,3 @@
-//go:generate stringer -type=Suit
-
 package deck
 
 import (
@@ -17,15 +15,34 @@ const (
 	Clubs
 )
 
+func (s Suit) String() string {
+	switch s {
+	case Spades:
+		return "♠"
+	case Diamonds:
+		return "♢"
+	case Hearts:
+		return "♡"
+	case Clubs:
+		return "♣"
+	default:
+		return ""
+	}
+}
+
 type Card struct {
 	Suit *Suit
 	Rank int
 }
 
-func (c *Card) RankCharacter() string {
+func (c Card) String() string {
+	return c.RankToString() + c.Suit.String()
+}
+
+func (c *Card) RankToString() string {
 	switch c.Rank {
 	case 0:
-		return "j"
+		return "JKR"
 	case 1:
 		return "A"
 	case 11:
